@@ -1,0 +1,149 @@
+// html
+
+<div class="container">
+  <div class="chart">
+    <canvas id="chart-area" width="300" height="300"></canvas>
+    <div class="chart__legend--color">
+      <ul>
+        <li>
+          <i class="icon -color-orange"></i>
+          <span class="label">Part II Credits</span>
+        </li>
+        <li>
+          <i class="icon -color-orangeTint"></i>
+          <span class="label">Part IV Credits</span>
+        </li>
+      </ul>
+    </div>
+  </div><!-- .chart -->
+</div>
+
+// end html
+
+
+// css 
+
+/Throw Away
+@import url(//fonts.googleapis.com/css?family=Oswald:300,400);
+
+body {
+  background: #222428;
+  font-family: "Oswald", sans-serif;
+  font-weight: 300;
+  color: #FFF;
+}
+
+.container {
+  width: 100%;
+  max-width: 300px;
+  margin: 120px auto 0;
+}
+
+
+//Keeper Code
+.chart__legend--color {
+  ul {
+    list-style: none;
+    margin: 2.3em auto 0;
+    width: 50%;
+    padding: 0;
+  }
+  .icon {
+    display: inline-block;
+    width: 1.3em;
+    height: 1.3em;
+    margin-right: 10px;
+    &.-color-orange {background: #CF7F00;}
+    &.-color-orangeTint {background: #db9f40;}
+  }
+  .label {font-size: 1.3em}
+}
+
+
+// end css
+
+
+// js 
+
+//http://stackoverflow.com/questions/20966817/how-to-add-text-inside-the-doughnut-chart-using-chart-js
+//https://jsbin.com/wapono/13/edit
+
+//data variables defined
+var credsAvail = 120;
+var credsPartII = 50.25;
+var credsPartIV = 50.25;
+var credsEarned = credsPartII + credsPartIV;
+
+var doughnutData = [
+				{
+					value: credsPartII,
+					color:"#CF7F00",
+					highlight: "#aaaaaa",
+					label: "Part II"
+				},
+  			{
+					value: credsPartIV,
+					color:"#db9f40",
+					highlight: "#aaaaaa",
+					label: "Part IV"
+				},
+				{
+					value: credsAvail - credsEarned,
+					color: "#CCCCCC",
+					highlight: "#aaaaaa",
+					label: "Credits Still Available"
+				}
+			];
+
+$(document).ready(function(){
+  var ctx = $('#chart-area').get(0).getContext("2d");
+  var myDoughnut = new Chart(ctx).Doughnut(doughnutData,{
+      animation:true,
+    	animationEasing: 'easeOutQuart',
+      responsive: true,
+      showTooltips: false,
+      percentageInnerCutout : 80,
+      segmentShowStroke : true,
+    	onAnimationProgress: function(){console.log('AnimationProgress')},
+    	onAnimationComplete: function() {
+      	
+        //Globals for Chart Summary
+        var alpha = 1; //opacity
+        ctx.fillStyle = "rgba(255, 255, 255, " + alpha + ")";
+        var canvasWidthvar = $('#chart-area').width();
+        var canvasHeight = $('#chart-area').height();
+        var constant = 40; //114 original
+
+        //Total Percentage Font
+        var fontsize = (canvasHeight/constant/1.6).toFixed(2);
+        ctx.font=fontsize +"em Oswald";
+        ctx.textBaseline="middle"; 
+        var total = 0;
+        $.each(doughnutData,function() {
+            total += parseInt(this.value,10);
+        });
+        //var tpercentage = ((doughnutData[0].value/total)*100)+"%"; //to show percentage of progress
+        //var tpercentage = ((doughnutData[0].value));
+        var tpercentage = credsEarned;
+        var textWidth = ctx.measureText(tpercentage).width;
+
+        var txtPosx = Math.round((canvasWidthvar - textWidth)/2);
+        ctx.fillText(tpercentage, txtPosx, canvasHeight/2.1); //2.0 perfectly centers height of label
+
+        //Label Font
+        var fontsize = (canvasHeight/constant/3.14).toFixed(2);
+        ctx.font=fontsize +"em Oswald";
+        var statLabel = 'Credits';
+        var textWidth = ctx.measureText(statLabel).width;
+        var txtPosx = Math.round((canvasWidthvar - textWidth)/2);
+        ctx.fillText(statLabel, txtPosx, canvasHeight/1.5);
+        
+        //decrease alpha opacity based on http://jsfiddle.net/dlinx/EhD7J/305/
+        
+        
+    	}
+  });
+});
+
+
+// end js
